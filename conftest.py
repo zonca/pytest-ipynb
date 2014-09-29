@@ -7,6 +7,7 @@ wrapped_stdin = sys.stdin
 sys.stdin = sys.__stdin__
 from IPython.kernel import KernelManager
 sys.stdin = wrapped_stdin
+from Queue import Empty
 
 from IPython.nbformat.current import reads
 
@@ -88,19 +89,21 @@ class IPyNbCell(pytest.Item):
         
         if self.parent.setup_cell:
             shell.execute(self.parent.setup_cell.input, allow_stdin=False)
-        shell.execute(self.cell.input, allow_stdin=False)
+        msg_id = shell.execute(self.cell.input, allow_stdin=False)
         if self.cell_description.lower().startswith("setup"):
             self.parent.setup_cell = self.cell
         # wait for finish, maximum 20s
-        msgs = []
+        timeout = 20
         while True:
             try:
-                msgs.append(shell.get_msg(block=True, timeout=5))
-            except:
-                break
+                msg = shell.get_msg(block=True, timeout=timeout)
+                if msg.get("parent_header", None) and msg["parent_header"].get("msg_id", None) == msg_id:
+                    break
+            except Empty:
+                raise IPyNbException("Timeout of %d seconds exceeded executing cell: %s" (timeout, self.cell.input))
 
-        reply = msgs[-1]['content']
-        #reply = shell.get_msgs()[-1]['content']
+        reply = msg['content']
+
         if reply['status'] == 'error':
             raise IPyNbException(self.cell_num, self.cell_description, self.cell.input, '\n'.join(reply['traceback']))
 
