@@ -1,4 +1,8 @@
 from setuptools import setup
+import os.path
+
+with open("README.rst") as f:
+    long_description = f.read()
 
 setup(
     name="pytest-ipynb",
@@ -17,7 +21,7 @@ setup(
     author="Andrea Zonca",
     author_email="code@andreazonca.com",
     description="Use pytest's runner to discover and execute tests as cells of IPython notebooks",
-    long_description=open('README.md').read(),
+    long_description=long_description,
     license="MIT",
     keywords="pytest test unittest ipython notebook",
     url="http://github.com/zonca/pytest-ipynb",
