@@ -20,7 +20,7 @@ See the `examples/` folder or [a preview on nbviewer](http://nbviewer.ipython.or
 * Discover files named `test*.ipynb`
 * Run each cell of the notebook as a unit test (just use `assert`)
 * First line of each cell is the test name, either as docstring, comment or function name
-* A cell named `fixture*` is run before each of the following unit tests as a fixture
+* A cell named `fixture*` or `setup*` is run before each of the following unit tests as a fixture
 * IPython notebook kernel is restarted after each test
 
 ## Requirements

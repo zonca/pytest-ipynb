@@ -1,4 +1,3 @@
-# put this file into any folder under which ipynb files shall be collected.
 import pytest
 import os,sys
 import exceptions
@@ -90,9 +89,8 @@ class IPyNbCell(pytest.Item):
         if self.parent.fixture_cell:
             shell.execute(self.parent.fixture_cell.input, allow_stdin=False)
         msg_id = shell.execute(self.cell.input, allow_stdin=False)
-        if self.cell_description.lower().startswith("fixture"):
+        if self.cell_description.lower().startswith("fixture") or self.cell_description.lower().startswith("setup"):
             self.parent.fixture_cell = self.cell
-        # wait for finish, maximum 20s
         timeout = 20
         while True:
             try:
