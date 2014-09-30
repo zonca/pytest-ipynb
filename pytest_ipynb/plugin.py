@@ -1,16 +1,22 @@
 import pytest
 import os,sys
-import exceptions
+try:
+    from exceptions import Exception
+except:
+    pass
 
 wrapped_stdin = sys.stdin
 sys.stdin = sys.__stdin__
 from IPython.kernel import KernelManager
 sys.stdin = wrapped_stdin
-from Queue import Empty
+try:
+    from Queue import Empty
+except:
+    from queue import Empty
 
 from IPython.nbformat.current import reads
 
-class IPyNbException(exceptions.Exception):
+class IPyNbException(Exception):
     """ custom exception for error reporting. """
 
 def pytest_collect_file(path, parent):
