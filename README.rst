@@ -54,3 +54,4 @@ Credits
 -------
 
 -  `<https://gist.github.com/timo/2621679>`__
+- Thomas Kluyver for help on the IPython mailing list
