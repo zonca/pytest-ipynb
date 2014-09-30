@@ -69,7 +69,7 @@ class IPyNbFile(pytest.File):
                     cell_num += 1
 
     def setup(self):
-        self.setup_cell = None
+        self.fixture_cell = None
         self.kernel = RunningKernel()
 
     def teardown(self):
@@ -87,11 +87,11 @@ class IPyNbCell(pytest.Item):
         self.parent.kernel.restart()
         shell = self.parent.kernel.shell
         
-        if self.parent.setup_cell:
-            shell.execute(self.parent.setup_cell.input, allow_stdin=False)
+        if self.parent.fixture_cell:
+            shell.execute(self.parent.fixture_cell.input, allow_stdin=False)
         msg_id = shell.execute(self.cell.input, allow_stdin=False)
-        if self.cell_description.lower().startswith("setup"):
-            self.parent.setup_cell = self.cell
+        if self.cell_description.lower().startswith("fixture"):
+            self.parent.fixture_cell = self.cell
         # wait for finish, maximum 20s
         timeout = 20
         while True:
