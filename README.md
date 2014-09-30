@@ -3,13 +3,17 @@ pytest-ipynb
 
 Plugin for `pytest` to run IPython notebooks as unit tests
 
-Define unit tests in IPython notebook cells ([see example on nbviewer]():
+Define unit tests in IPython notebook cells ([see example on nbviewer](http://nbviewer.ipython.org/github/zonca/pytest-ipynb/blob/master/examples/test_series_plots.ipynb)):
 
-[Example notebook](https://github.com/zonca/pytest-ipynb/raw/master/img/pytest-ipynb_notebook.png)
+![Example notebook](https://github.com/zonca/pytest-ipynb/raw/master/img/pytest-ipynb_notebook.png)
 
 Run `py.test` to execute them:
 
-[Example output](https://github.com/zonca/pytest-ipynb/raw/master/img/pytest-ipynb_output.png)
+![Example output](https://github.com/zonca/pytest-ipynb/raw/master/img/pytest-ipynb_output.png)
+
+## Example
+
+See the `examples/` folder or [a preview on nbviewer](http://nbviewer.ipython.org/github/zonca/pytest-ipynb/blob/master/examples/test_series_plots.ipynb).
 
 ## Features
 
