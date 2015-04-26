@@ -63,6 +63,7 @@ class RunningKernel(object):
 class IPyNbFile(pytest.File):
     def collect(self):
         with self.fspath.open() as f:
+            self.notebook_folder = self.fspath.dirname
             self.nb = reads(f.read(), 'json')
 
             cell_num = 0
@@ -92,6 +93,11 @@ class IPyNbCell(pytest.Item):
         self.parent.kernel.restart()
         shell = self.parent.kernel.shell
         
+        if self.parent.notebook_folder:
+            shell.execute(
+"""import os
+os.chdir(%s)""" % self.parent.notebook_folder)
+
         if self.parent.fixture_cell:
             shell.execute(self.parent.fixture_cell.input, allow_stdin=False)
         msg_id = shell.execute(self.cell.input, allow_stdin=False)
