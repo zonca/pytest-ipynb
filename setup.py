@@ -6,7 +6,7 @@ with open("README.rst") as f:
 
 setup(
     name="pytest-ipynb",
-    version="0.1.1",
+    version="1.0",
 
     packages = ['pytest_ipynb'],
     # the following makes a plugin available to pytest
