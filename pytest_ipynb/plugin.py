@@ -96,7 +96,7 @@ class IPyNbCell(pytest.Item):
         if self.parent.notebook_folder:
             shell.execute(
 """import os
-os.chdir(%s)""" % self.parent.notebook_folder)
+os.chdir("%s")""" % self.parent.notebook_folder)
 
         if self.parent.fixture_cell:
             shell.execute(self.parent.fixture_cell.input, allow_stdin=False)
