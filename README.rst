@@ -30,6 +30,7 @@ Features
 -  A cell named ``fixture*`` or ``setup*`` is run before each of the
    following unit tests as a fixture
 -  IPython notebook kernel is restarted after each test
+-  Each notebook is executed in the folder where the ``.ipynb`` file is located
 
 Requirements
 ------------
