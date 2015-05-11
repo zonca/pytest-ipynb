@@ -1,6 +1,8 @@
 pytest-ipynb
 ============
 
+**WARNING: currently does not work with IPython 3!**
+
 Plugin for ``pytest`` to run IPython notebooks as unit tests
 
 Define unit tests in IPython notebook cells (`see example on
