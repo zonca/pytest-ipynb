@@ -5,6 +5,8 @@ try:
 except:
     pass
 
+from runipy.notebook_runner import NotebookRunner
+
 wrapped_stdin = sys.stdin
 sys.stdin = sys.__stdin__
 from IPython.kernel import KernelManager
@@ -41,45 +43,24 @@ def get_cell_description(cell_input):
         pass
     return "no description"
 
-class RunningKernel(object):
-
-    def __init__(self):
-        self.km = KernelManager()
-        self.km.start_kernel(stderr=open(os.devnull, 'w'))
-        self.kc = self.km.client()
-        self.kc.start_channels()
-        self.shell = self.kc.shell_channel
-        self.shell.execute("pass")
-        self.shell.get_msg()
-
-    def restart(self):
-        self.km.restart_kernel(now=True)
-
-    def stop(self):
-        self.kc.stop_channels()
-        self.km.shutdown_kernel()
-        del self.km
-
 class IPyNbFile(pytest.File):
     def collect(self):
         with self.fspath.open() as f:
             self.notebook_folder = self.fspath.dirname
             self.nb = reads(f.read(), 'json')
+            self.runner = NotebookRunner(self.nb)
 
             cell_num = 0
 
-            for ws in self.nb.worksheets:
-                for cell in ws.cells:
-                    if cell.cell_type == "code":
-                        yield IPyNbCell(self.name, self, cell_num, cell)
-                    cell_num += 1
+            for cell in self.runner.iter_code_cells():
+                yield IPyNbCell(self.name, self, cell_num, cell)
+                cell_num += 1
 
     def setup(self):
         self.fixture_cell = None
-        self.kernel = RunningKernel()
 
     def teardown(self):
-        self.kernel.stop()
+        self.runner.shutdown_kernel()
 
 class IPyNbCell(pytest.Item):
     def __init__(self, name, parent, cell_num, cell):
@@ -90,23 +71,22 @@ class IPyNbCell(pytest.Item):
         self.cell_description = get_cell_description(self.cell.input)
 
     def runtest(self):
-        self.parent.kernel.restart()
-        shell = self.parent.kernel.shell
+        self.parent.runner.km.restart_kernel()
         
         if self.parent.notebook_folder:
-            shell.execute(
+            self.parent.runner.kc.execute(
 """import os
 os.chdir("%s")""" % self.parent.notebook_folder)
 
         if self.parent.fixture_cell:
-            shell.execute(self.parent.fixture_cell.input, allow_stdin=False)
-        msg_id = shell.execute(self.cell.input, allow_stdin=False)
+            self.parent.runner.kc.execute(self.parent.fixture_cell.input, allow_stdin=False)
+        msg_id = self.parent.runner.kc.execute(self.cell.input, allow_stdin=False)
         if self.cell_description.lower().startswith("fixture") or self.cell_description.lower().startswith("setup"):
             self.parent.fixture_cell = self.cell
         timeout = 20
         while True:
             try:
-                msg = shell.get_msg(block=True, timeout=timeout)
+                msg = self.parent.runner.kc.get_shell_msg(block=True, timeout=timeout)
                 if msg.get("parent_header", None) and msg["parent_header"].get("msg_id", None) == msg_id:
                     break
             except Empty:
