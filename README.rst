@@ -1,9 +1,7 @@
 pytest-ipynb
 ============
 
-**WARNING: currently does not work with IPython 3!**
-
-Plugin for ``pytest`` to run IPython notebooks as unit tests
+Plugin for ``pytest`` to run IPython notebooks as unit tests, relies on `runipy` to interface with the Notebook.
 
 Define unit tests in IPython notebook cells (`see example on
 nbviewer <http://nbviewer.ipython.org/github/zonca/pytest-ipynb/blob/master/examples/test_series_plots.ipynb>`_):
