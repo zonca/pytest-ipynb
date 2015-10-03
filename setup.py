@@ -6,7 +6,7 @@ with open("README.rst") as f:
 
 setup(
     name="pytest-ipynb",
-    version="1.0",
+    version="1.0.1",
 
     packages = ['pytest_ipynb'],
     # the following makes a plugin available to pytest
@@ -15,7 +15,7 @@ setup(
             'ipynb = pytest_ipynb.plugin',
         ]
     },
-    install_requires = ["pytest"],
+    install_requires = ["pytest", "runipy"],
 
     # metadata for upload to PyPI
     author="Andrea Zonca",
