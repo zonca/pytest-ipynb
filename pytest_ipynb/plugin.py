@@ -1,7 +1,8 @@
 import pytest
 import os,sys
+import warnings
 try:
-    from exceptions import Exception
+    from exceptions import Exception, TypeError, ImportError
 except:
     pass
 
@@ -9,14 +10,33 @@ from runipy.notebook_runner import NotebookRunner
 
 wrapped_stdin = sys.stdin
 sys.stdin = sys.__stdin__
-from IPython.kernel import KernelManager
 sys.stdin = wrapped_stdin
 try:
     from Queue import Empty
 except:
     from queue import Empty
 
-from IPython.nbformat.current import reads
+# code copied from runipy main.py
+with warnings.catch_warnings():
+    try:
+        from IPython.utils.shimmodule import ShimWarning
+        warnings.filterwarnings('error', '', ShimWarning)
+    except ImportError:
+        class ShimWarning(Warning):
+            """Warning issued by iPython 4.x regarding deprecated API."""
+            pass
+
+    try:
+        # IPython 3
+        from IPython.nbformat import reads, NBFormatError
+    except ShimWarning:
+        # IPython 4
+        from nbformat import reads, NBFormatError
+    except ImportError:
+        # IPython 2
+        from IPython.nbformat.current import reads, NBFormatError
+    finally:
+        warnings.resetwarnings()
 
 class IPyNbException(Exception):
     """ custom exception for error reporting. """
@@ -46,15 +66,21 @@ def get_cell_description(cell_input):
 class IPyNbFile(pytest.File):
     def collect(self):
         with self.fspath.open() as f:
-            self.notebook_folder = self.fspath.dirname
-            self.nb = reads(f.read(), 'json')
-            self.runner = NotebookRunner(self.nb)
+            payload = f.read()
+        self.notebook_folder = self.fspath.dirname
+        try:
+            # Ipython 3
+            self.nb = reads(payload, 3)
+        except (TypeError, NBFormatError):
+            # Ipython 2
+            self.nb = reads(payload, 'json')
+        self.runner = NotebookRunner(self.nb)
 
-            cell_num = 0
+        cell_num = 0
 
-            for cell in self.runner.iter_code_cells():
-                yield IPyNbCell(self.name, self, cell_num, cell)
-                cell_num += 1
+        for cell in self.runner.iter_code_cells():
+            yield IPyNbCell(self.name, self, cell_num, cell)
+            cell_num += 1
 
     def setup(self):
         self.fixture_cell = None
