@@ -135,8 +135,9 @@ os.chdir("%s")""" % self.parent.notebook_folder)
         else:
             return "pytest plugin exception: %s" % str(excinfo.value)
 
-    def reportinfo(self):
-        description = "cell %d" % self.cell_num
+    def _makeid(self):
+        description = self.parent.nodeid + "::" + self.name
+        description += "::" + "cell %d" % self.cell_num
         if self.cell_description:
-            description += ": " + self.cell_description
-        return self.fspath, 0, description
+            description += ", " + self.cell_description
+        return description
