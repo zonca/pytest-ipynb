@@ -76,7 +76,7 @@ class IPyNbFile(pytest.File):
             self.nb = reads(payload, 'json')
         self.runner = NotebookRunner(self.nb)
 
-        cell_num = 0
+        cell_num = 1
 
         for cell in self.runner.iter_code_cells():
             yield IPyNbCell(self.name, self, cell_num, cell)
