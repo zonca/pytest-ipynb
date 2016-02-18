@@ -97,8 +97,8 @@ class IPyNbCell(pytest.Item):
         self.cell_description = get_cell_description(self.cell.input)
 
     def runtest(self):
-        self.parent.runner.km.restart_kernel()
-        
+        # Instead of a full kernel restart, doing a reset below
+        #self.parent.runner.km.restart_kernel()
         if self.parent.notebook_folder:
             self.parent.runner.kc.execute(
 """import os
@@ -107,6 +107,11 @@ os.chdir("%s")""" % self.parent.notebook_folder)
         if ("SKIPCI" in self.cell_description) and ("CI" in os.environ):
             pass
         else:
+            # Using the %reset IPython magic, -f doesn't ask for confirmation
+            self.parent.runner.kc.execute("""
+from IPython import get_ipython
+get_ipython().magic("reset -f")
+""")
             if self.parent.fixture_cell:
                 self.parent.runner.kc.execute(self.parent.fixture_cell.input, allow_stdin=False)
             msg_id = self.parent.runner.kc.execute(self.cell.input, allow_stdin=False)
