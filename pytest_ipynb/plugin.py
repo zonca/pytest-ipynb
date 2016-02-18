@@ -104,24 +104,27 @@ class IPyNbCell(pytest.Item):
 """import os
 os.chdir("%s")""" % self.parent.notebook_folder)
 
-        if self.parent.fixture_cell:
-            self.parent.runner.kc.execute(self.parent.fixture_cell.input, allow_stdin=False)
-        msg_id = self.parent.runner.kc.execute(self.cell.input, allow_stdin=False)
-        if self.cell_description.lower().startswith("fixture") or self.cell_description.lower().startswith("setup"):
-            self.parent.fixture_cell = self.cell
-        timeout = 20
-        while True:
-            try:
-                msg = self.parent.runner.kc.get_shell_msg(block=True, timeout=timeout)
-                if msg.get("parent_header", None) and msg["parent_header"].get("msg_id", None) == msg_id:
-                    break
-            except Empty:
-                raise IPyNbException("Timeout of %d seconds exceeded executing cell: %s" (timeout, self.cell.input))
+        if ("SKIPCI" in self.cell_description) and ("CI" in os.environ):
+            pass
+        else:
+            if self.parent.fixture_cell:
+                self.parent.runner.kc.execute(self.parent.fixture_cell.input, allow_stdin=False)
+            msg_id = self.parent.runner.kc.execute(self.cell.input, allow_stdin=False)
+            if self.cell_description.lower().startswith("fixture") or self.cell_description.lower().startswith("setup"):
+                self.parent.fixture_cell = self.cell
+            timeout = 20
+            while True:
+                try:
+                    msg = self.parent.runner.kc.get_shell_msg(block=True, timeout=timeout)
+                    if msg.get("parent_header", None) and msg["parent_header"].get("msg_id", None) == msg_id:
+                        break
+                except Empty:
+                    raise IPyNbException("Timeout of %d seconds exceeded executing cell: %s" (timeout, self.cell.input))
 
-        reply = msg['content']
+            reply = msg['content']
 
-        if reply['status'] == 'error':
-            raise IPyNbException(self.cell_num, self.cell_description, self.cell.input, '\n'.join(reply['traceback']))
+            if reply['status'] == 'error':
+                raise IPyNbException(self.cell_num, self.cell_description, self.cell.input, '\n'.join(reply['traceback']))
 
     def repr_failure(self, excinfo):
         """ called when self.runtest() raises an exception. """
