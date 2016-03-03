@@ -98,7 +98,7 @@ class IPyNbCell(pytest.Item):
 
     def runtest(self):
         self.parent.runner.km.restart_kernel()
-        
+
         if self.parent.notebook_folder:
             self.parent.runner.kc.execute(
 """import os
@@ -119,7 +119,9 @@ os.chdir("%s")""" % self.parent.notebook_folder)
                     if msg.get("parent_header", None) and msg["parent_header"].get("msg_id", None) == msg_id:
                         break
                 except Empty:
-                    raise IPyNbException("Timeout of %d seconds exceeded executing cell: %s" (timeout, self.cell.input))
+                    raise IPyNbException(self.cell_num, self.cell_description,
+                                         self.cell.input,
+                                         "Timeout of %d seconds exceeded executing cell: %s" % (timeout, self.cell.input))
 
             reply = msg['content']
 
