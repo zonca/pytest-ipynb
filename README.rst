@@ -1,6 +1,9 @@
 pytest-ipynb
 ============
 
+**THE PROJECT IS NOT MAINTAINED ANYMORE**
+Anyone is welcome to fork and update the software using the same name without the need to ask or even notify me.
+
 Plugin for ``pytest`` to run IPython notebooks as unit tests, relies on `runipy` to interface with the Notebook.
 
 Define unit tests in IPython notebook cells (`see example on
